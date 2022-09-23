@@ -121,18 +121,6 @@ data = {
     "value": get_english(),
     "color": get_random_color()
   },
-  "temperature": {
-    "value": math.floor(weather['temp']),
-    "color": get_random_color()
-  },
-  "highest": {
-    "value": math.floor(weather['high']),
-    "color": get_random_color()
-  },
-  "lowest": {
-    "value": math.floor(weather['low']),
-    "color": get_random_color()
-  },
   "love_days": {
     "value": andtime,
     "color": get_random_color()
