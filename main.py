@@ -3,49 +3,46 @@ import math
 from wechatpy import WeChatClient, WeChatClientException
 from wechatpy.client.api import WeChatMessage
 import requests
-import os
 import random
-import re
+import re,json
+header = {
+    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.146 Safari/537.36'
+}
+
+def get_english():
+    """获取金山词霸每日一句，英文和翻译"""
+    url = "http://open.iciba.com/dsapi/"
+    r = requests.get(url,headers = header)
+    note = r.json()['content'] + "  " + r.json()['note']
+    return note
+
+def get_weather():
+    """获取天气预报"""
+    url = "https://devapi.qweather.com/v7/weather/now?location=124.37,43.17&key=5b55e853fdc94f27839fa17527d13874"
+    res = requests.get(url)
+    res = res.json()['now']
+    text =  "当前温度：" + res['temp'] + "℃，体感温度：" + res['feelsLike'] + "℃，" + res['windDir'] + res['windScale'] + "级。"
+    if int(res['feelsLike']) < 15:
+        a = "请崽崽注意防寒，外出及时添衣保暖，以免感冒。"
+    elif int(res['feelsLike']) < 25:
+        if int(res['windScale']) < 5:
+            a = "今天天气不错喔，崽崽可以酌情外出散步。"
+        else:
+            a = "风太大了，请崽崽减少出门。"
+    else:
+        a = "高温徘徊暑气难消，请崽崽注意防暑。"
+    return text + a
 
 nowtime = datetime.utcnow() + timedelta(hours=8)  # 东八区时间
 today = datetime.strptime(str(nowtime.date()), "%Y-%m-%d") #今天的日期
 
-start_date = os.getenv('START_DATE')
-city = os.getenv('CITY')
-birthday = os.getenv('BIRTHDAY')
-
-app_id = os.getenv('APP_ID')
-app_secret = os.getenv('APP_SECRET')
-
-user_ids = os.getenv('USER_ID', '').split("\n")
-template_id = os.getenv('TEMPLATE_ID')
-
-if app_id is None or app_secret is None:
-  print('请设置 APP_ID 和 APP_SECRET')
-  exit(422)
-
-if not user_ids:
-  print('请设置 USER_ID，若存在多个 ID 用回车分开')
-  exit(422)
-
-if template_id is None:
-  print('请设置 TEMPLATE_ID')
-  exit(422)
-
-# weather 直接返回对象，在使用的地方用字段进行调用。
-def get_weather():
-  if city is None:
-    print('请设置城市')
-    return None
-  url = "http://autodev.openspeech.cn/csp/api/v2.1/weather?openId=aiuicus&clientType=android&sign=android&city=" + city
-  # OpenRefactory Warning: The 'requests.get' method does not use any 'timeout' threshold which may cause program to hang indefinitely.
-  res = requests.get(url, timeout=100).json()
-  if res is None:
-    return None
-  if res['code'] != 0:
-    return None
-  weather = res['data']['list'][0]
-  return weather
+start_date = '2022-09-09'
+city = '新乡' 
+birthday = '01-22'
+app_id = 'wx9bf6393dba85f7bb'
+app_secret = '7075150cf50f31e16166f2ba975e3b75'
+user_ids = ['oxdlB5zpQNtSa84W1JsmOfGO63DQ','oxdlB5w-fyeMkA0M4YqD4g0EB1w4','oxdlB53Z6hI0xxKshj6rE0UwCm78','oxdlB5-Skg9GIHdvpTYcLILYE8Rc']
+template_id = 'ne444bgQG0neOAqP0Pthd-pY-4LPYsszopTnzA-o_ps'
 
 # 获取当前日期为星期几
 def get_week_day():
@@ -77,7 +74,7 @@ def get_counter_left(aim_date):
     
   if next < nowtime:
     next = next.replace(year=next.year + 1)
-  return (next - today).days
+  return '距离春节还有 ' + str((next - today).days) + ' 天。'
 
 # 彩虹屁 接口不稳定，所以失败的话会重新调用，直到成功
 def get_words():
@@ -100,10 +97,9 @@ def split_birthday():
     return None
   return birthday.split('\n')
 
-weather = get_weather()
-if weather is None:
-  print('获取天气失败')
-  exit(422)
+#aimtime = 
+andtime = '今天是推送的第 '+ str(get_memorial_days_count()) + ' 天，'
+
 data = {
   "city": {
     "value": city,
@@ -118,23 +114,11 @@ data = {
     "color": get_random_color()
   },
   "weather": {
-    "value": weather['weather'],
+    "value": get_weather(),
     "color": get_random_color()
   },
-  "humidity": {
-    "value": weather['humidity'],
-    "color": get_random_color()
-  },
-  "wind": {
-    "value": weather['wind'],
-    "color": get_random_color()
-  },
-  "air_data": {
-    "value": weather['airData'],
-    "color": get_random_color()
-  },
-  "air_quality": {
-    "value": weather['airQuality'],
+  "note": {
+    "value": get_english(),
     "color": get_random_color()
   },
   "temperature": {
@@ -150,7 +134,7 @@ data = {
     "color": get_random_color()
   },
   "love_days": {
-    "value": get_memorial_days_count(),
+    "value": andtime,
     "color": get_random_color()
   },
   "words": {
