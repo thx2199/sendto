@@ -47,6 +47,19 @@ user_ids = os.getenv('USER_ID', '').split("\n")
 template_id = os.getenv('TEMPLATE_ID')
 
 
+if app_id is None or app_secret is None:
+  print('请设置 APP_ID 和 APP_SECRET')
+  exit(422)
+
+if not user_ids:
+  print('请设置 USER_ID，若存在多个 ID 用回车分开')
+  exit(422)
+
+if template_id is None:
+  print('请设置 TEMPLATE_ID')
+  exit(422)
+
+
 # 获取当前日期为星期几
 def get_week_day():
   week_list = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"]
