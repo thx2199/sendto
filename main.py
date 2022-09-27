@@ -3,6 +3,7 @@ import math
 from wechatpy import WeChatClient, WeChatClientException
 from wechatpy.client.api import WeChatMessage
 import requests
+import os
 import random
 import re,json
 header = {
@@ -39,10 +40,12 @@ today = datetime.strptime(str(nowtime.date()), "%Y-%m-%d") #今天的日期
 start_date = '2022-09-09'
 city = '新乡' 
 birthday = '01-22'
-app_id = 'wx9bf6393dba85f7bb'
-app_secret = '7075150cf50f31e16166f2ba975e3b75'
-user_ids = ['oxdlB5zpQNtSa84W1JsmOfGO63DQ','oxdlB5w-fyeMkA0M4YqD4g0EB1w4','oxdlB53Z6hI0xxKshj6rE0UwCm78','oxdlB5-Skg9GIHdvpTYcLILYE8Rc']
-template_id = 'ne444bgQG0neOAqP0Pthd-pY-4LPYsszopTnzA-o_ps'
+
+app_id = os.getenv('APP_ID')
+app_secret = os.getenv('APP_SECRET')
+user_ids = os.getenv('USER_ID', '').split("\n")
+template_id = os.getenv('TEMPLATE_ID')
+
 
 # 获取当前日期为星期几
 def get_week_day():
