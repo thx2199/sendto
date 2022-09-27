@@ -7,7 +7,7 @@ on:
 jobs:
   send_message:
     runs-on: ubuntu-latest
-    name: send to your friend
+    name: send to friend
 
     steps:
     - name: checkout
@@ -21,7 +21,7 @@ jobs:
         python-version: '3.x'
         architecture: 'x64'
     - run: pip install -r ./requirements.txt && python ./main.py
-    
+
     env:
       APP_ID: ${{ secrets.APP_ID }}
       APP_SECRET: ${{ secrets.APP_SECRET }}
