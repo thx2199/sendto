@@ -47,18 +47,6 @@ user_ids = os.getenv('USER_ID', '').split("\n")
 template_id = os.getenv('TEMPLATE_ID')
 
 
-if app_id is None or app_secret is None:
-  print('请设置 APP_ID 和 APP_SECRET')
-  exit(422)
-
-if not user_ids:
-  print('请设置 USER_ID，若存在多个 ID 用回车分开')
-  exit(422)
-
-if template_id is None:
-  print('请设置 TEMPLATE_ID')
-  exit(422)
-
 
 # 获取当前日期为星期几
 def get_week_day():
@@ -164,15 +152,10 @@ if __name__ == '__main__':
     exit(502)
 
   wm = WeChatMessage(client)
-  count = 0
   try:
     for user_id in user_ids:
-      print('信息：',app_id,app_secret,user_ids,template_id)
       print('正在发送给 %s, 数据如下：%s' % (user_id, data))
       res = wm.send_template(user_id, template_id, data)
-      count+=1
   except WeChatClientException as e:
     print('微信端返回错误：%s。错误代码：%d' % (e.errmsg, e.errcode))
     exit(502)
-
-  print("发送了" + str(count) + "条消息")
