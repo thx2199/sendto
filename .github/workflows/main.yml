@@ -1,4 +1,4 @@
-name: morning
+name: sendto
 on:
   schedule:
   - cron:  '0 22 * * *'
