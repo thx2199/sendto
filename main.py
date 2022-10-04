@@ -1,45 +1,37 @@
 from datetime import date, datetime, timedelta
-import math
+import math,requests,os,random,re,json
 from wechatpy import WeChatClient, WeChatClientException
 from wechatpy.client.api import WeChatMessage
-import requests
-import os
-import random
-import re,json
-header = {
-    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.146 Safari/537.36'
-}
 
 def get_english():
     """获取金山词霸每日一句，英文和翻译"""
     url = "http://open.iciba.com/dsapi/"
-    r = requests.get(url,headers = header)
-    note = r.json()['content'] + "  " + r.json()['note']
+    r = requests.get(url, timeout=100)
+    note = r.json()['content'] + "\n" + r.json()['note']
     return note
 
 def get_weather():
-    """获取天气预报"""
-    url = "https://devapi.qweather.com/v7/weather/now?location=124.37,43.17&key=5b55e853fdc94f27839fa17527d13874"
-    res = requests.get(url)
-    res = res.json()['now']
-    text =  "当前温度：" + res['temp'] + "℃，体感温度：" + res['feelsLike'] + "℃，" + res['windDir'] + res['windScale'] + "级。"
-    if int(res['feelsLike']) < 15:
-        a = "请崽崽注意防寒，外出及时添衣保暖，以免感冒。"
-    elif int(res['feelsLike']) < 25:
-        if int(res['windScale']) < 5:
-            a = "今天天气不错喔，崽崽可以酌情外出散步。"
-        else:
-            a = "风太大了，请崽崽减少出门。"
-    else:
-        a = "高温徘徊暑气难消，请崽崽注意防暑。"
-    return text + a
+    city = '新乡'
+    url = "http://autodev.openspeech.cn/csp/api/v2.1/weather?openId=aiuicus&clientType=android&sign=android&city=" + city
+    res = requests.get(url, timeout=100).json()
+    today = res['data']['list'][0]
+    # tomor = res['data']['list'][1]
+    if today['weather'] == '阴':
+        text =  "今天是个阴天喔，气温是"
+    elif today['weather'][-1] == '雨':
+        text =  "今天有" + today['weather'] + "，崽崽外出时记得携带雨具！气温是"
+    else: text =  "今天是" + today['weather'] + "天，气温是"
+    text = text + str(int(today['low'])) + '~' + str(int(today['high'])) + "℃，空气质量" + str(today['airQuality']) + "，空气湿度" + today['humidity'] + "，正呼呼地吹着" + today['wind'] + "。"
+    urlh = 'http://timor.tech/api/holiday/tts'
+    resh = requests.get(urlh, timeout=100).json()
+    holiday = "\n\n休息日的话.." + resh['tts']
+    return text + holiday
 
 nowtime = datetime.utcnow() + timedelta(hours=8)  # 东八区时间
 today = datetime.strptime(str(nowtime.date()), "%Y-%m-%d") #今天的日期
 
 start_date = '2022-09-09'
-city = '新乡' 
-birthday = '01-22'
+aim_date = '01-22'
 
 app_id = os.getenv('APP_ID')
 app_secret = os.getenv('APP_SECRET')
@@ -50,32 +42,24 @@ template_id = os.getenv('TEMPLATE_ID')
 
 # 获取当前日期为星期几
 def get_week_day():
-  week_list = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"]
+  week_list = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
   week_day = week_list[datetime.date(today).weekday()]
   return week_day
 
-# 纪念日正数
+# 推送天数
 def get_memorial_days_count():
-  if start_date is None:
-    print('没有设置 START_DATE')
-    return 0
   delta = today - datetime.strptime(start_date, "%Y-%m-%d")
   return delta.days
 
-# 各种倒计时
+# 春节倒计时
 def get_counter_left(aim_date):
-  if aim_date is None:
-    return 0
-
   # 为了经常填错日期的同学们
   if re.match(r'^\d{1,2}\-\d{1,2}$', aim_date):
     next = datetime.strptime(str(date.today().year) + "-" + aim_date, "%Y-%m-%d")
   elif re.match(r'^\d{2,4}\-\d{1,2}\-\d{1,2}$', aim_date):
     next = datetime.strptime(aim_date, "%Y-%m-%d")
     next = next.replace(nowtime.year)
-  else:
-    print('日期格式不符合要求')
-    
+  else: return '日期错乱掉了..'
   if next < nowtime:
     next = next.replace(year=next.year + 1)
   return '距离春节还有 ' + str((next - today).days) + ' 天。'
@@ -97,18 +81,12 @@ def get_random_color():
 
 # 返回一个数组，循环产生变量
 def split_birthday():
-  if birthday is None:
-    return None
-  return birthday.split('\n')
+  return aim_date.split('\n')
 
 #aimtime = 
-andtime = '今天是推送的第 '+ str(get_memorial_days_count()) + ' 天，'
+andtime = get_week_day() + '，今天是推送的第'+ str(get_memorial_days_count()) + '天，' + get_counter_left(aim_date) 
 
 data = {
-  "city": {
-    "value": city,
-    "color": get_random_color()
-  },
   "date": {
     "value": today.strftime('%Y年%m月%d日'),
     "color": get_random_color()
@@ -140,7 +118,7 @@ for index, aim_date in enumerate(split_birthday()):
   if index != 0:
     key_name = key_name + "_%d" % index
   data[key_name] = {
-    "value": get_counter_left(aim_date),
+    "value": '',#get_counter_left(aim_date),
     "color": get_random_color()
   }
 
@@ -159,3 +137,5 @@ if __name__ == '__main__':
   except WeChatClientException as e:
     print('微信端返回错误：%s。错误代码：%d' % (e.errmsg, e.errcode))
     exit(502)
+
+    #{{note.DATA}}  {{weather.DATA}}  {{love_days.DATA}}  {{birthday_left.DATA}} {{words.DATA}}
