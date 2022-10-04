@@ -3,6 +3,16 @@ import math,requests,os,random,re,json
 from wechatpy import WeChatClient, WeChatClientException
 from wechatpy.client.api import WeChatMessage
 
+nowtime = datetime.utcnow() + timedelta(hours=8)  # 东八区时间
+today = datetime.strptime(str(nowtime.date()), "%Y-%m-%d") #今天的日期
+start_date = '2022-09-09'
+aim_date = '01-22'
+city = '新乡'
+app_id = os.getenv('APP_ID')
+app_secret = os.getenv('APP_SECRET')
+user_ids = os.getenv('USER_ID', '').split("\n")
+template_id = os.getenv('TEMPLATE_ID')
+
 def get_english():
     """获取金山词霸每日一句，英文和翻译"""
     url = "http://open.iciba.com/dsapi/"
@@ -11,7 +21,6 @@ def get_english():
     return note
 
 def get_weather():
-    city = '新乡'
     url = "http://autodev.openspeech.cn/csp/api/v2.1/weather?openId=aiuicus&clientType=android&sign=android&city=" + city
     res = requests.get(url, timeout=100).json()
     today = res['data']['list'][0]
@@ -26,19 +35,6 @@ def get_weather():
     resh = requests.get(urlh, timeout=100).json()
     holiday = "\n\n休息日的话.." + resh['tts']
     return text + holiday
-
-nowtime = datetime.utcnow() + timedelta(hours=8)  # 东八区时间
-today = datetime.strptime(str(nowtime.date()), "%Y-%m-%d") #今天的日期
-
-start_date = '2022-09-09'
-aim_date = '01-22'
-
-app_id = os.getenv('APP_ID')
-app_secret = os.getenv('APP_SECRET')
-user_ids = os.getenv('USER_ID', '').split("\n")
-template_id = os.getenv('TEMPLATE_ID')
-
-
 
 # 获取当前日期为星期几
 def get_week_day():
