@@ -17,10 +17,10 @@ def get_weather():
     today = res['data']['list'][0]
     # tomor = res['data']['list'][1]
     if today['weather'] == '阴':
-        text =  "今天是个阴天喔，气温是"
+        text =  city + "今天是个阴天喔，气温是"
     elif today['weather'][-1] == '雨':
-        text =  "今天有" + today['weather'] + "，崽崽外出时记得携带雨具！气温是"
-    else: text =  "今天是" + today['weather'] + "天，气温是"
+        text =  city + "今天有" + today['weather'] + "，崽崽外出时记得携带雨具！气温是"
+    else: text =  city + "今天是" + today['weather'] + "天，气温是"
     text = text + str(int(today['low'])) + '~' + str(int(today['high'])) + "℃，空气质量" + str(today['airQuality']) + "，空气湿度" + today['humidity'] + "，正呼呼地吹着" + today['wind'] + "。"
     urlh = 'http://timor.tech/api/holiday/tts'
     resh = requests.get(urlh, timeout=100).json()
@@ -84,7 +84,7 @@ def split_birthday():
   return aim_date.split('\n')
 
 #aimtime = 
-andtime = get_week_day() + '，今天是推送的第'+ str(get_memorial_days_count()) + '天，' + get_counter_left(aim_date) 
+andtime = '今天是推送的第'+ str(get_memorial_days_count()) + '天，' + get_counter_left(aim_date) 
 
 data = {
   "date": {
