@@ -7,7 +7,7 @@ nowtime = datetime.utcnow() + timedelta(hours=8)  # 东八区时间
 today = datetime.strptime(str(nowtime.date()), "%Y-%m-%d") #今天的日期
 start_date = '2022-09-09'
 aim_date = '01-22'
-city = '新乡'
+city = os.getenv('CITY')
 app_id = os.getenv('APP_ID')
 app_secret = os.getenv('APP_SECRET')
 user_ids = os.getenv('USER_ID', '').split("\n")
@@ -29,7 +29,7 @@ def get_weather():
         text =  city + "今天是个阴天喔，气温是"
     elif today['weather'][-1] == '雨':
         text =  city + "今天有" + today['weather'] + "，崽崽外出时记得携带雨具！气温是"
-    else: text =  city + "今天是" + today['weather'] + "天，气温是"
+    else: text =  city + "今天是" + today['weather'] + "天喔，气温是"
     text = text + str(int(today['low'])) + '~' + str(int(today['high'])) + "℃，空气质量" + str(today['airQuality']) + "，空气湿度" + today['humidity'] + "，正呼呼地吹着" + today['wind'] + "。"
     urlh = 'http://timor.tech/api/holiday/tts'
     resh = requests.get(urlh, timeout=100).json()
