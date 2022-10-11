@@ -31,7 +31,7 @@ def get_weather():
         text =  city + "今天有" + today['weather'] + "，崽崽外出时记得携带雨具！气温是"
     else: text =  city + "今天是" + today['weather'] + "天喔，气温是"
     text = text + str(int(today['low'])) + '~' + str(int(today['high'])) + "℃，空气质量" + str(today['airQuality']) + "，空气湿度" + today['humidity'] + "，正呼呼地吹着" + today['wind'] + "。"
-    urlh = 'http://timor.tech/api/holiday/tts'
+    urlh = 'http://timor.tech/api/holiday/tts/tomorrow'
     resh = requests.get(urlh, timeout=100).json()
     holiday = "\n\n休息日的话.." + resh['tts']
     return text + holiday
@@ -60,7 +60,7 @@ def get_counter_left(aim_date):
     next = next.replace(year=next.year + 1)
   return '距离春节还有 ' + str((next - today).days) + ' 天。'
 
-# 彩虹屁 接口不稳定，所以失败的话会重新调用，直到成功
+# 接口不稳定，所以失败的话会重新调用，直到成功
 def get_words():
   # OpenRefactory Warning: The 'requests.get' method does not use any 'timeout' threshold which may cause program to hang indefinitely.
   words = requests.get("https://api.shadiao.pro/chp", timeout=100)
@@ -74,10 +74,6 @@ def format_temperature(temperature):
 # 随机颜色
 def get_random_color():
   return "#%06x" % random.randint(0, 0xFFFFFF)
-
-# 返回一个数组，循环产生变量
-def split_birthday():
-  return aim_date.split('\n')
 
 #aimtime = 
 andtime = '今天是推送的第'+ str(get_memorial_days_count()) + '天，' + get_counter_left(aim_date) 
@@ -109,15 +105,6 @@ data = {
   },
 }
 
-for index, aim_date in enumerate(split_birthday()):
-  key_name = "birthday_left"
-  if index != 0:
-    key_name = key_name + "_%d" % index
-  data[key_name] = {
-    "value": '',#get_counter_left(aim_date),
-    "color": get_random_color()
-  }
-
 if __name__ == '__main__':
   try:
     client = WeChatClient(app_id, app_secret)
@@ -133,5 +120,3 @@ if __name__ == '__main__':
   except WeChatClientException as e:
     print('微信端返回错误：%s。错误代码：%d' % (e.errmsg, e.errcode))
     exit(502)
-
-    #{{note.DATA}}  {{weather.DATA}}  {{love_days.DATA}}  {{birthday_left.DATA}} {{words.DATA}}
