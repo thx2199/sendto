@@ -13,6 +13,14 @@ app_secret = os.getenv('APP_SECRET')
 user_ids = os.getenv('USER_ID', '').split("\n")
 template_id = os.getenv('TEMPLATE_ID')
 
+
+# 获取当前日期为星期几
+def get_week_day():
+  week_list = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
+  week_day = week_list[datetime.date(today).weekday()]
+  return week_day
+
+
 def get_english():
     """获取金山词霸每日一句，英文和翻译"""
     url = "http://open.iciba.com/dsapi/"
@@ -33,12 +41,6 @@ def get_weather():
     text = text + str(int(today['low'])) + '~' + str(int(today['high'])) + "℃，空气质量" + str(today['airQuality']) + "，空气湿度" + today['humidity'] + "，正呼呼地吹着" + today['wind'] + "。"
     holiday = "\n\n休息日的话..今天是" + get_week_day() + '喔'
     return text + holiday
-
-# 获取当前日期为星期几
-def get_week_day():
-  week_list = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
-  week_day = week_list[datetime.date(today).weekday()]
-  return week_day
 
 # 推送天数
 def get_memorial_days_count():
