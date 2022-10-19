@@ -31,9 +31,7 @@ def get_weather():
         text =  city + "今天有" + today['weather'] + "，崽崽外出时记得携带雨具！气温是"
     else: text =  city + "今天是" + today['weather'] + "天喔，气温是"
     text = text + str(int(today['low'])) + '~' + str(int(today['high'])) + "℃，空气质量" + str(today['airQuality']) + "，空气湿度" + today['humidity'] + "，正呼呼地吹着" + today['wind'] + "。"
-    urlh = 'http://timor.tech/api/holiday/tts/tomorrow'
-    resh = requests.get(urlh, timeout=100).json()
-    holiday = "\n\n休息日的话.." + resh['tts']
+    holiday = "\n\n休息日的话..今天是" + get_week_day() + '喔'
     return text + holiday
 
 # 获取当前日期为星期几
