@@ -58,7 +58,8 @@ def get_counter_left(aim_date):
   else: return '日期错乱掉了..'
   if next < nowtime:
     next = next.replace(year=next.year + 1)
-  return '距离春节还有 ' + str((next - today).days) + ' 天。'
+  # return '距离春节还有 ' + str((next - today).days) + ' 天。'
+  return '新年快乐！'
 
 # 接口不稳定，所以失败的话会重新调用，直到成功
 def get_words():
