@@ -6,7 +6,7 @@ from wechatpy.client.api import WeChatMessage
 nowtime = datetime.utcnow() + timedelta(hours=8)  # 东八区时间
 today = datetime.strptime(str(nowtime.date()), "%Y-%m-%d") #今天的日期
 start_date = '2022-09-09'
-aim_date = '01-22'
+aim_date = '05-01'    # 目标节日时间
 city = os.getenv('CITY')
 app_id = os.getenv('APP_ID')
 app_secret = os.getenv('APP_SECRET')
@@ -47,7 +47,7 @@ def get_memorial_days_count():
   delta = today - datetime.strptime(start_date, "%Y-%m-%d")
   return delta.days
 
-# 春节倒计时
+# 节日倒计时
 def get_counter_left(aim_date):
   # 为了经常填错日期的同学们
   if re.match(r'^\d{1,2}\-\d{1,2}$', aim_date):
@@ -58,8 +58,8 @@ def get_counter_left(aim_date):
   else: return '日期错乱掉了..'
   if next < nowtime:
     next = next.replace(year=next.year + 1)
-  # return '距离春节还有 ' + str((next - today).days) + ' 天。'
-  return '新年快乐！'
+  return '距离劳动节还有 ' + str((next - today).days) + ' 天。'
+  # return '新年快乐！'
 
 # 接口不稳定，所以失败的话会重新调用，直到成功
 def get_words():
