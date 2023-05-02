@@ -28,3 +28,7 @@ jobs:
       TEMPLATE_ID: ${{ secrets.TEMPLATE_ID }}
       USER_ID: ${{ secrets.USER_ID }}
       CITY: ${{ secrets.CITY }}
+      URL: ${{ secrets.URL }}
+      NAME: ${{ secrets.NAME }}
+      START_DATE: ${{ secrets.START_DATE }}
+      AIM_DATE: ${{ secrets.AIM_DATE }}
