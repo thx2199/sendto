@@ -5,51 +5,71 @@ from wechatpy.client.api import WeChatMessage
 
 nowtime = datetime.utcnow() + timedelta(hours=8)  # 东八区时间
 today = datetime.strptime(str(nowtime.date()), "%Y-%m-%d") #今天的日期
-start_date = '2022-09-09'
-aim_date = '05-01'    # 目标节日时间
-city = os.getenv('CITY')
+
 app_id = os.getenv('APP_ID')
 app_secret = os.getenv('APP_SECRET')
 user_ids = os.getenv('USER_ID', '').split("\n")
 template_id = os.getenv('TEMPLATE_ID')
+name = os.getenv('NAME')
+city = os.getenv('CITY')
+aim_date = os.getenv('AIM_DATE')
+start_date = os.getenv('START_DATE')
 
 
-# 获取当前日期为星期几
-def get_week_day():
-  week_list = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
-  week_day = week_list[datetime.date(today).weekday()]
-  return week_day
-
-
+# 每日一句
 def get_english():
-    """获取金山词霸每日一句，英文和翻译"""
     url = "http://open.iciba.com/dsapi/"
     r = requests.get(url, timeout=100)
     note = r.json()['content'] + "\n" + r.json()['note']
     return note
 
+# 获取天气
 def get_weather():
-    url = "http://autodev.openspeech.cn/csp/api/v2.1/weather?openId=aiuicus&clientType=android&sign=android&city=" + city
+    url = os.getenv('URL')
     res = requests.get(url, timeout=100).json()
-    today = res['data']['list'][0]
-    # tomor = res['data']['list'][1]
-    if today['weather'] == '阴':
-        text =  city + "今天是个阴天喔，气温是"
-    elif today['weather'][-1] == '雨':
-        text =  city + "今天有" + today['weather'] + "，崽崽外出时记得携带雨具！气温是"
-    else: text =  city + "今天是" + today['weather'] + "天喔，气温是"
-    text = text + str(int(today['low'])) + '~' + str(int(today['high'])) + "℃，空气质量" + str(today['airQuality']) + "，空气湿度" + today['humidity'] + "，正呼呼地吹着" + today['wind'] + "。"
-    holiday = "\n\n休息日的话..今天是" + get_week_day() + '喔'
-    return text + holiday
+    ls = res['hourly']
+    # flag = ls.find('雨')
+    # print(type(ls))
+    # print(type(ls[0]))
+    high = ls[0]["temp"]
+    high_time = ls[0]["fxTime"][11:16]
+    low = ls[0]["temp"]
+    # 记录下雨标记
+    weather = ls[0]["text"]
+    wf_time = ls[0]["fxTime"][11:16]
+    if weather.find("雨")<0:
+        wf_flag = False
+    else:
+        wf_flag = True
+
+    for i in ls:
+        if i["temp"] > high:
+            high = i["temp"]
+            high_time = i["fxTime"][11:16]
+        if i["temp"] < low:
+            low = i["temp"]
+        if weather.find("雨")<0 and i["text"].find("雨")>=0:
+            weather = i["text"]
+            wf_time = i["fxTime"][11:16]
+            wf_flag = True
+    if(wf_flag):
+        return (u"降雨警报！降雨警报！预报说今天%s的时候会开始降下%s，%s出门请记得带雨具。气温会在%s左右到达最高的%s℃，然后在夜晚降至最低的%s℃，%s快想一套合适的穿搭啦。"%(wf_time,weather,name,high_time,high,low,name))
+    else:
+        return (u"今天的%s是个%s天，气温会在%s左右到达最高的%s℃，然后在夜晚降至最低的%s℃，%s快想一套合适的穿搭啦。"%(city,weather,high_time,high,low,name))
+
+# 获取当前日期为星期几
+def get_week_day():
+  week_list = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期天"]
+  week_day = week_list[datetime.date(today).weekday()]
+  return week_day
 
 # 推送天数
 def get_memorial_days_count():
   delta = today - datetime.strptime(start_date, "%Y-%m-%d")
   return delta.days
 
-# 节日倒计时
+# 生日倒计时
 def get_counter_left(aim_date):
-  # 为了经常填错日期的同学们
   if re.match(r'^\d{1,2}\-\d{1,2}$', aim_date):
     next = datetime.strptime(str(date.today().year) + "-" + aim_date, "%Y-%m-%d")
   elif re.match(r'^\d{2,4}\-\d{1,2}\-\d{1,2}$', aim_date):
@@ -58,10 +78,9 @@ def get_counter_left(aim_date):
   else: return '日期错乱掉了..'
   if next < nowtime:
     next = next.replace(year=next.year + 1)
-  return '距离劳动节还有 ' + str((next - today).days) + ' 天。'
-  # return '新年快乐！'
+  return '距离'+ name +'生日还有 ' + str((next - today).days) + ' 天。'
 
-# 接口不稳定，所以失败的话会重新调用，直到成功
+# 彩虹
 def get_words():
   # OpenRefactory Warning: The 'requests.get' method does not use any 'timeout' threshold which may cause program to hang indefinitely.
   words = requests.get("https://api.shadiao.pro/chp", timeout=100)
