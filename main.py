@@ -17,15 +17,15 @@ start_date = os.getenv('START_DATE')
 
 
 # 每日一句
-def get_english():
-    url = "http://open.iciba.com/dsapi/"
-    r = requests.get(url, timeout=100)
-    note = r.json()['content'] + "\n" + r.json()['note']
-    return note
+# def get_english():
+#     url = "http://open.iciba.com/dsapi/"
+#     r = requests.get(url, timeout=100)
+#     note = r.json()['content'] + "\n" + r.json()['note']
+#     return note
 
 # 获取天气
 def get_weather():
-    url = os.getenv('URL')
+    #url = os.getenv('URL')
     res = requests.get(url, timeout=100).json()
     ls = res['hourly']
     # flag = ls.find('雨')
@@ -45,7 +45,7 @@ def get_weather():
     for i in ls:
         if i["temp"] > high:
             high = i["temp"]
-            high_time = i["fxTime"][11:16]
+            # high_time = i["fxTime"][11:16]
         if i["temp"] < low:
             low = i["temp"]
         if weather.find("雨")<0 and i["text"].find("雨")>=0:
@@ -53,15 +53,15 @@ def get_weather():
             wf_time = i["fxTime"][11:16]
             wf_flag = True
     if(wf_flag):
-        return (u"降雨警报！降雨警报！预报说今天%s的时候会开始降下%s，%s出门请记得带雨具。气温会在%s左右到达最高的%s℃，然后在夜晚降至最低的%s℃，%s快想一套合适的穿搭啦。"%(wf_time,weather,name,high_time,high,low,name))
+        return (u"降雨警报！%s的时候会下%s."%(wf_time,weather))
     else:
-        return (u"今天的%s是个%s天，气温会在%s左右到达最高的%s℃，然后在夜晚降至最低的%s℃，%s快想一套合适的穿搭啦。"%(city,weather,high_time,high,low,name))
+        return (u"%s天(%s ~ %s°)。"%(weather,high,low))
 
 # 获取当前日期为星期几
-def get_week_day():
-  week_list = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期天"]
-  week_day = week_list[datetime.date(today).weekday()]
-  return week_day
+# def get_week_day():
+#   week_list = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期天"]
+#   week_day = week_list[datetime.date(today).weekday()]
+#   return week_day
 
 # 推送天数
 def get_memorial_days_count():
@@ -78,7 +78,7 @@ def get_counter_left(aim_date):
   else: return '日期错乱掉了..'
   if next < nowtime:
     next = next.replace(year=next.year + 1)
-  return '距离'+ name +'生日还有 ' + str((next - today).days) + ' 天。'
+  return name +'生日还有 ' + str((next - today).days) + ' 天。'
 
 # 彩虹
 def get_words():
@@ -96,32 +96,32 @@ def get_random_color():
   return "#%06x" % random.randint(0, 0xFFFFFF)
 
 #aimtime = 
-andtime = '今天是推送的第'+ str(get_memorial_days_count()) + '天，' + get_counter_left(aim_date) 
+andtime = '。在一起'+ str(get_memorial_days_count()) + '天，' + get_counter_left(aim_date) 
 
 data = {
   "date": {
-    "value": today.strftime('%Y年%m月%d日'),
-    "color": get_random_color()
+    "value": '', # today.strftime('%Y年%m月%d日'),
+    #"color": get_random_color()
   },
   "week_day": {
-    "value": get_week_day(),
-    "color": get_random_color()
+    "value": '', # get_week_day(),
+    #"color": get_random_color()
   },
   "weather": {
     "value": get_weather(),
-    "color": get_random_color()
+    #"color": get_random_color()
   },
   "note": {
-    "value": get_english(),
-    "color": get_random_color()
+    "value": '', # get_english(),
+    #"color": get_random_color()
   },
   "love_days": {
     "value": andtime,
-    "color": get_random_color()
+    #"color": get_random_color()
   },
   "words": {
     "value": get_words(),
-    "color": get_random_color()
+    #"color": get_random_color()
   },
 }
 
