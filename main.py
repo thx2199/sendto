@@ -14,6 +14,7 @@ name = os.getenv('NAME')
 city = os.getenv('CITY')
 aim_date = os.getenv('AIM_DATE')
 start_date = os.getenv('START_DATE')
+url = os.getenv('URL')
 
 
 # 每日一句
