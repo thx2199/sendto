@@ -44,10 +44,10 @@ def get_weather():
         wf_flag = True
 
     for i in ls:
-        if i["temp"] > high:
+        if int(i["temp"]) > int(high):
             high = i["temp"]
             # high_time = i["fxTime"][11:16]
-        if i["temp"] < low:
+        if int(i["temp"]) < int(low):
             low = i["temp"]
         if weather.find("雨")<0 and i["text"].find("雨")>=0:
             weather = i["text"]
@@ -56,7 +56,7 @@ def get_weather():
     if(wf_flag):
         return (u"降雨警报！%s的时候会下%s."%(wf_time,weather))
     else:
-        return (u"%s天(%s ~ %s°)。"%(weather,high,low))
+        return (u"%s天(%s ~ %s°)。"%(weather,low,high))
 
 # 获取当前日期为星期几
 # def get_week_day():
